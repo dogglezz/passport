@@ -1,40 +1,66 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "3.2.3"
-	id("io.spring.dependency-management") version "1.1.4"
-	kotlin("jvm") version "1.9.22"
-	kotlin("plugin.spring") version "1.9.22"
-	kotlin("plugin.jpa") version "1.9.22"
+	kotlin("jvm")
+	kotlin("kapt")
+	kotlin("plugin.spring") apply false
+	kotlin("plugin.jpa") apply false
+	id("org.springframework.boot") apply false
+	id("io.spring.dependency-management")
 }
-
-group = "kr.dogglezz"
-version = "0.0.1-SNAPSHOT"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.valueOf("VERSION_${property("javaVersion")}")
 }
 
-repositories {
-	mavenCentral()
-}
+allprojects {
+	group = "${property("projectGroup")}"
+	version = "${property("applicationVersion")}"
 
-dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	runtimeOnly("com.h2database:h2")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-}
-
-tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs += "-Xjsr305=strict"
-		jvmTarget = "21"
+	repositories {
+		mavenCentral()
 	}
 }
+subprojects {
+	apply(plugin = "org.jetbrains.kotlin.jvm")
+	apply(plugin = "org.jetbrains.kotlin.kapt")
+	apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+	apply(plugin = "org.jetbrains.kotlin.plugin.jpa")
+	apply(plugin = "org.springframework.boot")
+	apply(plugin = "io.spring.dependency-management")
 
-tasks.withType<Test> {
-	useJUnitPlatform()
+	dependencyManagement {
+		imports {
+			mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudDependenciesVersion")}")
+		}
+	}
+
+	dependencies {
+		testImplementation("io.kotest:kotest-assertions-core:${property("kotestVersion")}")
+		implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+		implementation("org.jetbrains.kotlin:kotlin-reflect")
+		testImplementation("org.springframework.boot:spring-boot-starter-test")
+		kapt("org.springframework.boot:spring-boot-configuration-processor")
+	}
+
+	tasks.getByName("bootJar") {
+		enabled = false
+	}
+
+	tasks.getByName("jar") {
+		enabled = true
+	}
+
+	java.sourceCompatibility = JavaVersion.valueOf("VERSION_${property("javaVersion")}")
+	tasks.withType<KotlinCompile> {
+		kotlinOptions {
+			freeCompilerArgs += "-Xjsr305=strict"
+			jvmTarget = "${project.property("javaVersion")}"
+		}
+	}
+
+	tasks.withType<Test> {
+		useJUnitPlatform()
+	}
+
 }
