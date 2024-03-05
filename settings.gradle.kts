@@ -21,3 +21,7 @@ pluginManagement {
 
 include("api-gateway")
 include("discovery")
+include("user")
+include("auth")
+include("support:common")
+include("support:advice")
