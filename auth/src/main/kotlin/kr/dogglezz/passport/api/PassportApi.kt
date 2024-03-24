@@ -12,7 +12,8 @@ class PassportApi(
 ) {
 
     @PostMapping("/api/v1/passport")
-    fun issuePassport(@RequestHeader(name = HttpHeaders.AUTHORIZATION) bearerToken: String) {
+    fun issuePassport(@RequestHeader(name = HttpHeaders.AUTHORIZATION) token: String): String {
+        return passportService.issuePassport(token)
     }
 
 }

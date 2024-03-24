@@ -8,9 +8,11 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.server.reactive.ServerHttpResponse
+import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 
+@Component
 class PassportAuthenticationFilter(
     private val authClientService: AuthClientService,
     private val jwtProvider: JwtProvider
@@ -23,13 +25,15 @@ class PassportAuthenticationFilter(
             val request = exchange.request
             val headers = request.headers
 
+            println(headers)
             if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
                 return@GatewayFilter onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED)
             }
 
             val authorizationHeader = headers[HttpHeaders.AUTHORIZATION]?.first()
             val token = authorizationHeader?.replace("Bearer ", "")
-            if (token.isNullOrEmpty() || jwtProvider.verityToken(token)) {
+            if (token.isNullOrEmpty() || jwtProvider.verityToken(token).not()) {
+                print(token )
                 return@GatewayFilter onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED)
             }
 

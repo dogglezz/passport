@@ -45,6 +45,7 @@ spring:
             - Path=/auth-service/**
           filters:
             - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
+            - PassportAuthenticationFilter
 eureka:
   client:
     register-with-eureka: true

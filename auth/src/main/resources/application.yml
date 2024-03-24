@@ -2,11 +2,15 @@ spring:
   application:
     name: auth-service
 
-
-
-
 jwt:
   secret:
     key: 7x!A%D*G-KaPdSgVkYp3s6v9y/B?E(H+
     token:
       expired: 3600000
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+  client:
+    serviceUrl:
+      defaultZone:  http://127.0.0.1:8761/eureka
