@@ -25,7 +25,6 @@ class PassportAuthenticationFilter(
             val request = exchange.request
             val headers = request.headers
 
-            println(headers)
             if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
                 return@GatewayFilter onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED)
             }
@@ -33,7 +32,6 @@ class PassportAuthenticationFilter(
             val authorizationHeader = headers[HttpHeaders.AUTHORIZATION]?.first()
             val token = authorizationHeader?.replace("Bearer ", "")
             if (token.isNullOrEmpty() || jwtProvider.verityToken(token).not()) {
-                print(token )
                 return@GatewayFilter onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED)
             }
 
